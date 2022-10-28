@@ -9,6 +9,7 @@ import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 import argparse
+import sys
 
 DEG2RAD = np.pi / 180.
 
@@ -19,8 +20,24 @@ args = vars(parser.parse_args())
 
 # choose topics to extract from rosbag
 ROBOT = "turtle1"
-estimated_topic = f"/{ROBOT}/pose"
-groundtruth_topic = f"/{ROBOT}/odometry"
+estimated_topic = f"{ROBOT}/pose"
+groundtruth_topic = f"{ROBOT}/odometry"
+
+# make sure topics are in rosbag: adjust if needed, quit otherwise
+topics = rosbag.Bag(args['bag_path']).get_type_and_topic_info()[1].keys()
+def adjust_topic(topic, topics):
+    if topic not in topics:  # "try to add or remove the leading slash"
+        if topic[0] == '/':
+            topic = topic[1:]
+        else:
+            topic = '/' + topic
+    if topic in topics:
+        return topic
+    else:
+        print(f"[in post-process] topic {topic} not found in rosbag topic list {topics}. Exiting..")
+        sys.exit()
+estimated_topic = adjust_topic(estimated_topic, topics)
+groundtruth_topic = adjust_topic(groundtruth_topic, topics)
 
 # preliminary check: make sure bag indexes are in increasing time order
 with rosbag.Bag(args['bag_path'], 'r') as bag:
@@ -117,6 +134,9 @@ for msg in estimated_messages:
 )
 assert(len(matched_messages) == len(estimated_messages))
 
+# remove garbage messages logged during test setup
+# @TODO replace hard-coded assumption of 100 first messages with an event trigger
+matched_messages = matched_messages[50:]
 
 # plot time deltas between matched messages to verify correct match
 time_deltas = [match['groundtruth'].timestamp.to_sec() - match['estimated'].timestamp.to_sec() for match in matched_messages]
@@ -125,7 +145,7 @@ fig = px.scatter(
     title=f"Time delta for each matched pair of messages <br>Max time delta = {max([abs(t) for t in time_deltas])*1000:.0f} ms",
     labels={'value': 'time delta (s)'}
 )
-fig.write_html(args['out_folder'] + "/time_deltas.html")
+fig.write_html(args['out_folder'] + "/mtime_deltas.html")
 
 # plot metrics as a function of test time
 start_time = matched_messages[0]['groundtruth'].timestamp.to_sec()
