@@ -14,12 +14,12 @@ jobs:
         subscriptions:
           pose: turtle1/pose
           result: turtle1/odometry
-        rosbag-record: all
+        rosbag-record: subscriptions
       settings:
         - name: turtle
-          ros1_testpackage: turtle_odometry
-          ros1_testfile: turtle_odometry.launch
-          ros1_postprocess: turtle_post_process.py
+          ros_testpackage: turtle_odometry
+          ros_testfile: turtle_odometry.launch
+          rosbag-postprocess: turtle_post_process.py
           params:
             # test/param1: 1
             # test/param1: [3, 2, 1]
@@ -27,8 +27,8 @@ jobs:
             test/start_pose: [[1, 1, 0]]  # [x, y, theta]
             # test/start_pose: [[1, 1, 0], [2.5, 2.5, 0]]  # [x, y, theta]
             # test/segment_length: [7, 2]  # for square trajectory
-            test/segment_length: 5  # for square trajectory
-            # test/segment_length: 1  # for square trajectory
+            # test/segment_length: 5  # for square trajectory
+            test/segment_length: 1  # for square trajectory
             test/odom_tuning_theta: 0.01   # demo: tune odometry algorithm
             test/odom_tuning_forward: 0.1  # demo: tune odometry algorithm
             # test/odom_tuning_theta: [0, 0.01, 0.1]   # demo: tune odometry algorithm

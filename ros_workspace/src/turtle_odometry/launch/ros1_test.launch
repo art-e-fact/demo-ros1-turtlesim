@@ -3,13 +3,13 @@ provides resources as requested by the user in the artefact.yaml file
 includes the launch test file defined by the user
  -->
  <!-- example cli command
-roslaunch testing ros1_test.launch ros1_testpackage:=testing ros1_testfile:=test_odometry.launch simulator:=none
+roslaunch testing ros1_test.launch ros_testpackage:=testing ros_testfile:=test_odometry.launch simulator:=none
   -->
 
 <launch>
   <arg name="param_file" />
-  <arg name="ros1_testpackage" />
-  <arg name="ros1_testfile" />
+  <arg name="ros_testpackage" />
+  <arg name="ros_testfile" />
   <arg name="simulator" />
   <arg name="rosbag_args" />
 
@@ -37,7 +37,7 @@ roslaunch testing ros1_test.launch ros1_testpackage:=testing ros1_testfile:=test
 
   <!-- include the launch test file defined by the user in artefact.yaml -->
   <include
-    file="$(eval find(ros1_testpackage) + '/launch/' + ros1_testfile)"
+    file="$(eval find(ros_testpackage) + '/launch/' + ros_testfile)"
   />
 
 </launch>
