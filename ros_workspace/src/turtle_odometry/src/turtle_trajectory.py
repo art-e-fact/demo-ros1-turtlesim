@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-from tracemalloc import start
 import rospy
 from geometry_msgs.msg import Twist, Point
 from turtlesim.msg import Pose as TurtlePose
