@@ -127,3 +127,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Warp Client (Using it for Dev purposes only)
+warp-client

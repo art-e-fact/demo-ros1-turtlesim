@@ -62,6 +62,16 @@ You can play around and change the parameters of the artefacts.yaml file: for ex
 
 4. If you encounter any problem, feel free to open up a github issue describing your environment and the error message.
 
+## Running Just the Test Suite with Artefacts
+
+The test suite can also be run completly in the cloud using the Artefacts Infrastructure. To do so, fork this repository and install the Artefacts GitHub app on your account. When you push to your fork, the platform is triggered automatically.
+
+Step by Step:
+
+1. Create an account on app.artefacts.com if you have not already done so, then create a new project. The Framework should be ROS1, and make sure to check the "I want to link a GitHub repo" box before hitting "Create project"
+2. The next page will ask you to select the GitHub owner of the repo (yourself or your organization) and then provide instructions to install the Artefacts + GitHub Application. You will have the choice to allow the application to see all of your repositories, or only the ones you wish for it to see. After making your choice, you will then be able to add the repository in the "GitHub Repository to link".
+3. Once setup, make sure that `project` in the artefacts.yaml file matches the project name you made on app.artefacts.com. Make a change (changing the project name can be that change!), `add`, `commit` and push your change(s) to GitHub.
+4. Artefacts will see the change, build the project, and run the tests. You will see the dashboard give you status updates, and once complete, the test results will be displayed. 
 
 ## Under the Hood
 Explanations of what happens under the hood to adapt it to your own use cases (with turtlesim or another simulator!)

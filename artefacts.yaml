@@ -1,6 +1,6 @@
 version: 0.1.0
 
-project: demo-ros1-turtlesim
+project: demo-ros1-turtlesim # change to match your project name in the dashboard
 jobs:
   basic_turtle: # Overall job name
     type: test
