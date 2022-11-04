@@ -10,7 +10,7 @@ jobs:
     timeout: 5 # minutes
     scenarios:
       defaults: # Global to all scenarios, and overriden in specific scenarios.
-        reuse-master: False  # if True: rostest will use the host's rosmaster instead of spining up an isolated rostest network
+        reuse-master: True  # if True: rostest will use the host's rosmaster instead of spining up an isolated rostest network
         subscriptions:
           pose: turtle1/pose
           result: turtle1/odometry
@@ -33,6 +33,12 @@ jobs:
             test/segment_length: 1  # for square trajectory
             test/odom_tuning_theta: 0.01   # demo: tune odometry algorithm
             test/odom_tuning_forward: 0.1  # demo: tune odometry algorithm
+        # - name: turtle_fail
+        #   params:
+        #     test/start_pose: [[-1, 1, 0]]  # [x, y, theta]
+        #     test/segment_length: 1  # for square trajectory
+        #     test/odom_tuning_theta: 0.01   # demo: tune odometry algorithm
+        #     test/odom_tuning_forward: 0.1  # demo: tune odometry algorithm
         # - name: turtle_gridsearch_traj
         #   params:
         #     test/start_pose: [[1, 1, 0], [2.5, 2.5, 0]]  # [x, y, theta]

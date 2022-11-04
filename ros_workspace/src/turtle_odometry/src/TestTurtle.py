@@ -66,7 +66,7 @@ class TestTurtle(unittest.TestCase):
             timeout=None
         )
         distance_to_start = np.sqrt((final_pose.x - self.start_pose['x'])**2 + (final_pose.y - self.start_pose['y'])**2)
-        rospy.logerr(f"distance to start: {distance_to_start}")
+        rospy.loginfo(f"distance to start: {distance_to_start}")
         # check if the turtle moved (= is not at exactly the starting position)
         self.assertNotEqual(
             distance_to_start,
