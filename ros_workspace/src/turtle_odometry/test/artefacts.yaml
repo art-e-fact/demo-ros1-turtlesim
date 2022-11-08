@@ -10,7 +10,8 @@ jobs:
     timeout: 5 # minutes
     scenarios:
       defaults: # Global to all scenarios, and overriden in specific scenarios.
-        reuse-master: True  # if True: rostest will use the host's rosmaster instead of spining up an isolated rostest network
+        output_path: /tmp/outputs/
+        reuse-master: False  # if True: rostest will use the host's rosmaster instead of spining up an isolated rostest network
         subscriptions:
           pose: turtle1/pose
           result: turtle1/odometry

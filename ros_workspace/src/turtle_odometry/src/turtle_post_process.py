@@ -42,7 +42,7 @@ groundtruth_topic = adjust_topic(groundtruth_topic, topics)
 # preliminary check: make sure bag indexes are in increasing time order
 with rosbag.Bag(args['bag_path'], 'r') as bag:
     timelist = [msg.timestamp.to_sec() for msg in bag.read_messages()]
-assert(timelist == sorted(timelist))
+assert timelist == sorted(timelist)
 
 # extract messages from rosbag
 estimated_messages = []
@@ -132,11 +132,13 @@ for msg in estimated_messages:
             'groundtruth': matched_msg
         }
 )
-assert(len(matched_messages) == len(estimated_messages))
-
+assert len(matched_messages) == len(estimated_messages)
+N = 50
+assert len(matched_messages) > N, f"[error in turtle_post_process] not enough matched messages found"
 # remove garbage messages logged during test setup
-# @TODO replace hard-coded assumption of 100 first messages with an event trigger
-matched_messages = matched_messages[50:]
+# @TODO replace hard-coded assumption of N first messages with an event trigger
+matched_messages = matched_messages[N:]
+
 
 # plot time deltas between matched messages to verify correct match
 time_deltas = [match['groundtruth'].timestamp.to_sec() - match['estimated'].timestamp.to_sec() for match in matched_messages]
@@ -177,7 +179,7 @@ fig.write_html(args['out_folder'] + "/error_orientation_time.html")
 distance_list = compute_distance_travelled(
     [match['groundtruth'] for match in matched_messages]
 )
-assert(len(distance_list) == len(matched_messages))
+assert len(distance_list) == len(matched_messages)
 total_distance = distance_list[-1]['cummulated_distance']
 start_time = distance_list[0]['timestamp'].to_sec()
 fig = px.scatter(
