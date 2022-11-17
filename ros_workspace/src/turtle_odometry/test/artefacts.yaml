@@ -7,6 +7,7 @@ jobs:
     runtime:
       simulator: turtlesim
       framework: ros1:0
+      pre-launch: echo hello  # command to be executed before launching the test. use it to perform any setup before simulator launch
     timeout: 5 # minutes
     scenarios:
       defaults: # Global to all scenarios, and overriden in specific scenarios.
