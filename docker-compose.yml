@@ -31,6 +31,7 @@ services:
       # (the api key and config are mounted from the host)
       - ../warp-client:/warp-client
       - ~/.artefacts:/home/turtle/.artefacts
+      - $PWD/artefacts.yaml:/home/turtle/artefacts.yaml
       # sync timezone with host and ensure X11 settings
       - "/etc/timezone:/etc/timezone:ro"
       - "/etc/localtime:/etc/localtime:ro"
