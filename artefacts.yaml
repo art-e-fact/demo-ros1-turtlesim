@@ -12,7 +12,6 @@ jobs:
     scenarios:
       defaults: # Global to all scenarios, and overriden in specific scenarios.
         output_path: /tmp/outputs/
-        reuse-master: False  # if True: rostest will use the host's rosmaster instead of spining up an isolated rostest network
         subscriptions:
           pose: turtle1/pose
           result: turtle1/odometry
