@@ -28,27 +28,44 @@ jobs:
         #     test/segment_length: 5  # for square trajectory
         #     test/odom_tuning_theta: 0.01   # demo: tune odometry algorithm
         #     test/odom_tuning_forward: 0.1  # demo: tune odometry algorithm
-        - name: turtle_quick
-          params:
-            test/start_pose: [[1, 1, 0]]  # [x, y, theta]
-            test/segment_length: 1  # for square trajectory
-            test/odom_tuning_theta: 0.01   # demo: tune odometry algorithm
-            test/odom_tuning_forward: 0.1  # demo: tune odometry algorithm
+        # - name: turtle_quick
+        #   metrics:
+        #     - error_horizontal
+        #     - error_vertical
+        #     - error_yaw
+        #   params:
+        #     test/start_pose: [[1, 1, 0]]  # [x, y, theta]
+        #     test/segment_length: 1  # for square trajectory
+        #     test/odom_tuning_theta: 0.01   # demo: tune odometry algorithm
+        #     test/odom_tuning_forward: 0.1  # demo: tune odometry algorithm
         # - name: turtle_fail
         #   params:
         #     test/start_pose: [[-1, 1, 0]]  # [x, y, theta]
         #     test/segment_length: 1  # for square trajectory
         #     test/odom_tuning_theta: 0.01   # demo: tune odometry algorithm
         #     test/odom_tuning_forward: 0.1  # demo: tune odometry algorithm
-        # - name: turtle_gridsearch_traj
-        #   params:
-        #     test/start_pose: [[1, 1, 0], [2.5, 2.5, 0]]  # [x, y, theta]
-        #     test/segment_length: [7, 2]  # for square trajectory
-        #     test/odom_tuning_theta: 0.01   # demo: tune odometry algorithm
-        #     test/odom_tuning_forward: 0.1  # demo: tune odometry algorithm
+        - name: turtle_gridsearch_traj
+          params:
+            test/start_pose: [[1, 1, 0], [2.5, 2.5, 0]]  # [x, y, theta]
+            test/segment_length: [7, 2]  # for square trajectory
+            test/odom_tuning_theta: 0.01   # demo: tune odometry algorithm
+            test/odom_tuning_forward: 0.1  # demo: tune odometry algorithm
         # - name: turtle_gridsearch_odom
         #   params:
         #     test/start_pose: [[1, 1, 0]]  # [x, y, theta]
         #     test/segment_length: 7  # for square trajectory
         #     test/odom_tuning_theta: [0, 0.01, 0.1]   # demo: tune odometry algorithm
         #     test/odom_tuning_forward: 0.1  # demo: tune odometry algorithm
+  dummy_other:
+      type: test
+      runtime:
+        simulator: turtlesim
+        framework: other
+      timeout: 5 # minutes
+      scenarios:
+        defaults: # Global to all scenarios, and overriden in specific scenarios.
+          run: "echo 'hello'"
+        settings:
+          - name: dummy
+            params:
+              test1: 42
