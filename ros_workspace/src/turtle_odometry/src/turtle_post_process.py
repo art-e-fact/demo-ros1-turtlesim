@@ -10,12 +10,15 @@ import plotly.express as px
 import plotly.graph_objects as go
 import argparse
 import sys
+import json
 
 DEG2RAD = np.pi / 180.
 
 parser = argparse.ArgumentParser(description="turtle post processing")
 parser.add_argument("--bag_path", help="path to input ROS bag")
 parser.add_argument("--out_folder", help="folder path for outputs (e.g .html files)")
+parser.add_argument("--skip_figures", default=False, action='store_true', help="flag: do not generate figure outputs")
+parser.add_argument("--skip_metrics", default=False, action='store_true', help="flag: do not dump metrics in json file")
 args = vars(parser.parse_args())
 
 # choose topics to extract from rosbag
@@ -142,38 +145,44 @@ matched_messages = matched_messages[N:]
 
 # plot time deltas between matched messages to verify correct match
 time_deltas = [match['groundtruth'].timestamp.to_sec() - match['estimated'].timestamp.to_sec() for match in matched_messages]
-fig = px.scatter(
-    time_deltas,
-    title=f"Time delta for each matched pair of messages <br>Max time delta = {max([abs(t) for t in time_deltas])*1000:.0f} ms",
-    labels={'value': 'time delta (s)'}
-)
-fig.write_html(args['out_folder'] + "/mtime_deltas.html")
+max_time_delta = max([abs(t) for t in time_deltas])
+if not args["skip_figures"]:
+    fig = px.scatter(
+        time_deltas,
+        title=f"Time delta for each matched pair of messages <br>Max time delta = {max_time_delta*1000:.0f} ms",
+        labels={'value': 'time delta (s)'}
+    )
+    fig.write_html(args['out_folder'] + "/mtime_deltas.html")
 
 # plot metrics as a function of test time
 start_time = matched_messages[0]['groundtruth'].timestamp.to_sec()
-fig = px.scatter(
-    x=[match['groundtruth'].timestamp.to_sec() - start_time for match in matched_messages],
-    y=[
-        error_horiz(match['groundtruth'], match['estimated'])
-        for match in matched_messages
-    ],
-    title=f"Horizontal error over time <br>Final error = {error_horiz(matched_messages[-1]['groundtruth'], matched_messages[-1]['estimated']):.2f} m",
-    labels={'x': 'time (s)', 'y': 'error (m)'}
-)
-fig.write_html(args['out_folder'] + "/error_horiz_time.html")
+time_gt = [match['groundtruth'].timestamp.to_sec() - start_time for match in matched_messages]
+horiz_errors_time = [
+    error_horiz(match['groundtruth'], match['estimated'])
+    for match in matched_messages
+]
+yaw_errors_time = [
+    error_yaw(match['groundtruth'], match['estimated']) / DEG2RAD
+    for match in matched_messages
+]
+if not args["skip_figures"]:
+    fig = px.scatter(
+        x=time_gt,
+        y=horiz_errors_time,
+        title=f"Horizontal error over time <br>Final error = {horiz_errors_time[-1]:.2f} m",
+        labels={'x': 'time (s)', 'y': 'error (m)'}
+    )
+    fig.write_html(args['out_folder'] + "/error_horiz_time.html")
 
-start_time = matched_messages[0]['groundtruth'].timestamp.to_sec()
-fig = px.scatter(
-    x=[match['groundtruth'].timestamp.to_sec() - start_time for match in matched_messages],
-    y=[
-        error_yaw(match['groundtruth'], match['estimated']) / DEG2RAD
-        for match in matched_messages
-    ],
-    title=f"Yaw orientation error over time <br>Final error = {error_yaw(matched_messages[-1]['groundtruth'], matched_messages[-1]['estimated']) / DEG2RAD:.2f} deg",
-    labels={'x': 'time (s)', 'y': 'error (degrees)'},
-    range_y=[-1, 10]
-)
-fig.write_html(args['out_folder'] + "/error_orientation_time.html")
+    start_time = matched_messages[0]['groundtruth'].timestamp.to_sec()
+    fig = px.scatter(
+        x=time_gt,
+        y=yaw_errors_time,
+        title=f"Yaw orientation error over time <br>Final error = {yaw_errors_time[-1]:.2f} deg",
+        labels={'x': 'time (s)', 'y': 'error (degrees)'},
+        range_y=[-1, 10]
+    )
+    fig.write_html(args['out_folder'] + "/error_orientation_time.html")
 
 # plot metrics as a function of distance travelled
 distance_list = compute_distance_travelled(
@@ -182,62 +191,78 @@ distance_list = compute_distance_travelled(
 assert len(distance_list) == len(matched_messages)
 total_distance = distance_list[-1]['cummulated_distance']
 start_time = distance_list[0]['timestamp'].to_sec()
-fig = px.scatter(
-    x=[_['timestamp'].to_sec() - start_time for _ in distance_list],
-    y=[_['cummulated_distance'] for _ in distance_list],
-    title=f"Distance travelled over time <br>Total distance = {total_distance:.1f} m",
-    labels={'x': 'timestamp (s)', 'y': 'cummulated distance (m)'}
-)
-fig.write_html(args['out_folder'] + "/distance_travelled.html")
+cummulated_distance = [_['cummulated_distance'] for _ in distance_list]
+horiz_errors_distance = [
+    error_horiz(match['groundtruth'], match['estimated'])
+    for match in matched_messages
+]
+yaw_errors_distance = [
+    error_yaw(match['groundtruth'], match['estimated']) / DEG2RAD
+    for match in matched_messages
+]
+if not args["skip_figures"]:
+    fig = px.scatter(
+        x=[_['timestamp'].to_sec() - start_time for _ in distance_list],
+        y=cummulated_distance,
+        title=f"Distance travelled over time <br>Total distance = {total_distance:.1f} m",
+        labels={'x': 'timestamp (s)', 'y': 'cummulated distance (m)'}
+    )
+    fig.write_html(args['out_folder'] + "/distance_travelled.html")
 
-fig = px.scatter(
-    x=[_['cummulated_distance'] for _ in distance_list],
-    y=[
-        error_horiz(match['groundtruth'], match['estimated'])
-        for match in matched_messages
-    ],
-    title=f"Horizontal error over distance travelled <br>Final error = { error_horiz(matched_messages[-1]['groundtruth'], matched_messages[-1]['estimated']):.2f} m",
-    labels={'x': 'distance travelled (m)', 'y': 'error (m)'}
-)
-fig.write_html(args['out_folder'] + "/error_horiz_distance.html")
+    fig = px.scatter(
+        x=cummulated_distance,
+        y=horiz_errors_distance,
+        title=f"Horizontal error over distance travelled <br>Final error = {horiz_errors_distance[-1]:.2f} m",
+        labels={'x': 'distance travelled (m)', 'y': 'error (m)'}
+    )
+    fig.write_html(args['out_folder'] + "/error_horiz_distance.html")
 
-fig = px.scatter(
-    x=[_['cummulated_distance'] for _ in distance_list],
-    y=[
-        error_yaw(match['groundtruth'], match['estimated']) / DEG2RAD
-        for match in matched_messages
-    ],
-    title=f"Yaw orientation error over distance travelled <br>Final error = {error_yaw(matched_messages[-1]['groundtruth'], matched_messages[-1]['estimated']) / DEG2RAD:.2f} deg",
-    labels={'x': 'distance travelled (m)', 'y': 'error (degrees)'},
-    range_y=[-1, 10]
-)
-fig.write_html(args['out_folder'] + "/error_orientation_distance.html")
+    fig = px.scatter(
+        x=cummulated_distance,
+        y=yaw_errors_distance,
+        title=f"Yaw orientation error over distance travelled <br>Final error = {yaw_errors_distance[-1]:.2f} deg",
+        labels={'x': 'distance travelled (m)', 'y': 'error (degrees)'},
+        range_y=[-1, 10]
+    )
+    fig.write_html(args['out_folder'] + "/error_orientation_distance.html")
 
 # plot the trajectory (ground truth and estimated)
-fig = go.Figure()
-fig.add_trace(go.Scatter(
-    x=[match['groundtruth'].message.x for match in matched_messages],
-    y=[match['groundtruth'].message.y for match in matched_messages],
-    mode='lines+markers',
-    name='groundtruth'
-))
-fig.add_trace(go.Scatter(
-    x=[match['estimated'].message.x for match in matched_messages],
-    y=[match['estimated'].message.y for match in matched_messages],
-    mode='lines+markers',
-    name='estimated odometry'
-))
-fig.update_layout(
-    title=f"Turtle trajectory: ground truth vs estimated from odometry",
-    xaxis_title='x',
-    yaxis_title='y',
-    margin_t=30,
-    margin_b=0,
-    margin_l=0,
-    margin_r=0
-)
-fig.update_yaxes(
-    scaleanchor = "x",
-    scaleratio = 1,
-)
-fig.write_html(args['out_folder'] + "/_trajectory.html")
+if not args["skip_figures"]:
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=[match['groundtruth'].message.x for match in matched_messages],
+        y=[match['groundtruth'].message.y for match in matched_messages],
+        mode='lines+markers',
+        name='groundtruth'
+    ))
+    fig.add_trace(go.Scatter(
+        x=[match['estimated'].message.x for match in matched_messages],
+        y=[match['estimated'].message.y for match in matched_messages],
+        mode='lines+markers',
+        name='estimated odometry'
+    ))
+    fig.update_layout(
+        title=f"Turtle trajectory: ground truth vs estimated from odometry",
+        xaxis_title='x',
+        yaxis_title='y',
+        margin_t=30,
+        margin_b=0,
+        margin_l=0,
+        margin_r=0
+    )
+    fig.update_yaxes(
+        scaleanchor = "x",
+        scaleratio = 1,
+    )
+    fig.write_html(args['out_folder'] + "/_trajectory.html")
+
+# export metrics as a .json
+if not args["skip_metrics"]:
+    metrics = {
+        'cummulated_distance_final_m': cummulated_distance[-1],
+        'error_horizontal_final_m': horiz_errors_time[-1],
+        'error_orientation_final_deg': yaw_errors_time[-1],
+        'time_delta_max_ms': max_time_delta * 1000
+    }
+    with open(args["out_folder"] + "/metrics.json", "w") as f:
+        json.dump(metrics, f)
