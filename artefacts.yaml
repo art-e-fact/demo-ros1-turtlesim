@@ -7,18 +7,18 @@ jobs:
     runtime:
       simulator: turtlesim
       framework: ros1:0
-      pre-launch: echo hello  # command to be executed before launching the test. use it to perform any setup before simulator launch
+      pre_launch: echo hello  # command to be executed before launching the test. use it to perform any setup before simulator launch
     timeout: 5 # minutes
     scenarios:
       defaults: # Global to all scenarios, and overriden in specific scenarios.
-        output_path: /tmp/outputs/
+        output_dirs: [/tmp/outputs/]
         subscriptions:
           pose: turtle1/pose
           result: turtle1/odometry
-        rosbag-record: subscriptions
+        rosbag_record: subscriptions
         ros_testpackage: turtle_odometry
         ros_testfile: turtle_odometry.launch
-        rosbag-postprocess: turtle_post_process.py --skip_metrics --skip_figures
+        rosbag_postprocess: turtle_post_process.py --skip_metrics --skip_figures
       settings:
         # - name: turtle
         #   params:
