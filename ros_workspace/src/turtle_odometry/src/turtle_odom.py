@@ -14,11 +14,12 @@ class TurtleOdom():
         self.cb_throttle = rospy.Time.now()
 
         # initialize odometry estimate
-        self.prev_pose = self.odometry = rospy.wait_for_message(
+        self.prev_pose = rospy.wait_for_message(
             f'/{self.name}/pose',
             TurtlePose,
             timeout=None
         )
+        self.odometry = copy.deepcopy(self.prev_pose)
 
         # setup odometry publisher
         self.pub_odometry = rospy.Publisher(
@@ -80,7 +81,7 @@ class TurtleOdom():
         delta_x = odom.x - self.prev_pose.x
         delta_y = odom.y - self.prev_pose.y
         delta_forward = np.sqrt(delta_x**2 + delta_y**2)
-        self.prev_pose = odom
+        self.prev_pose = copy.deepcopy(odom)
 
         # add noise
         noise_theta = self.noise_factor_theta * random.uniform(-1, 1)
@@ -108,4 +109,5 @@ def main():
         pass
 
 if __name__ == '__main__':
+    import copy
     main()

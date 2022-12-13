@@ -69,7 +69,7 @@ def compute_distance_travelled(message_list):
             distance_list.append(
                 {
                     "timestamp": msg.timestamp,
-                    "cummulated_distance": 0
+                    "cumulated_distance": 0
                 })
         else:
             current_position = msg.message.x, msg.message.y
@@ -79,7 +79,7 @@ def compute_distance_travelled(message_list):
             distance_list.append(
                 {
                     "timestamp": msg.timestamp,
-                    "cummulated_distance": distance
+                    "cumulated_distance": distance
                 })
             prev_position = current_position
     return distance_list
@@ -91,7 +91,10 @@ def match_lookup(lookup_time, lookup_list, previous_index, max_search=100):
     '''
     assert len(lookup_list) > previous_index, f"previous index = {previous_index} is beyond bounds of lookup list of length {len(lookup_list)}"
     time_delta = -1  # initialize as negative
-    i = previous_index
+    if previous_index > 10:
+        i = previous_index - 10  # start search earlier to avoid mising messages
+    else:
+        i = previous_index
     while time_delta < 0 and i < previous_index + max_search:  # lookup_list time is before lookup_time
         time_delta = lookup_list[i].timestamp.to_sec() - lookup_time
         i += 1
@@ -123,10 +126,10 @@ def error_yaw(groundtruth_msg, estimated_msg):
 # match messages via their timestamp
 matched_messages = []
 prev_index = 0
-for msg in estimated_messages:
+for msg in groundtruth_messages:
     prev_index, matched_msg = match_lookup(
         lookup_time=msg.timestamp.to_sec(),   # find the estimated message's timestamp
-        lookup_list=groundtruth_messages,     # within the groundtruth messages
+        lookup_list=estimated_messages,     # within the groundtruth messages
         previous_index=prev_index             # (start looking at the previous match to make it fast!)
     )
     matched_messages.append(
@@ -135,8 +138,8 @@ for msg in estimated_messages:
             'groundtruth': matched_msg
         }
 )
-assert len(matched_messages) == len(estimated_messages)
-N = 50
+assert len(matched_messages) == len(groundtruth_messages)
+N = 5
 assert len(matched_messages) > N, f"[error in turtle_post_process] not enough matched messages found"
 # remove garbage messages logged during test setup
 # @TODO replace hard-coded assumption of N first messages with an event trigger
@@ -189,9 +192,9 @@ distance_list = compute_distance_travelled(
     [match['groundtruth'] for match in matched_messages]
 )
 assert len(distance_list) == len(matched_messages)
-total_distance = distance_list[-1]['cummulated_distance']
+total_distance = distance_list[-1]['cumulated_distance']
 start_time = distance_list[0]['timestamp'].to_sec()
-cummulated_distance = [_['cummulated_distance'] for _ in distance_list]
+cumulated_distance = [_['cumulated_distance'] for _ in distance_list]
 horiz_errors_distance = [
     error_horiz(match['groundtruth'], match['estimated'])
     for match in matched_messages
@@ -203,14 +206,14 @@ yaw_errors_distance = [
 if not args["skip_figures"]:
     fig = px.scatter(
         x=[_['timestamp'].to_sec() - start_time for _ in distance_list],
-        y=cummulated_distance,
+        y=cumulated_distance,
         title=f"Distance travelled over time <br>Total distance = {total_distance:.1f} m",
         labels={'x': 'timestamp (s)', 'y': 'cummulated distance (m)'}
     )
     fig.write_html(args['out_folder'] + "/distance_travelled.html")
 
     fig = px.scatter(
-        x=cummulated_distance,
+        x=cumulated_distance,
         y=horiz_errors_distance,
         title=f"Horizontal error over distance travelled <br>Final error = {horiz_errors_distance[-1]:.2f} m",
         labels={'x': 'distance travelled (m)', 'y': 'error (m)'}
@@ -218,7 +221,7 @@ if not args["skip_figures"]:
     fig.write_html(args['out_folder'] + "/error_horiz_distance.html")
 
     fig = px.scatter(
-        x=cummulated_distance,
+        x=cumulated_distance,
         y=yaw_errors_distance,
         title=f"Yaw orientation error over distance travelled <br>Final error = {yaw_errors_distance[-1]:.2f} deg",
         labels={'x': 'distance travelled (m)', 'y': 'error (degrees)'},
@@ -259,7 +262,7 @@ if not args["skip_figures"]:
 # export metrics as a .json
 if not args["skip_metrics"]:
     metrics = {
-        'cummulated_distance_final_m': cummulated_distance[-1],
+        'cumulated_distance_final_m': cumulated_distance[-1],
         'error_horizontal_final_m': horiz_errors_time[-1],
         'error_orientation_final_deg': yaw_errors_time[-1],
         'time_delta_max_ms': max_time_delta * 1000
