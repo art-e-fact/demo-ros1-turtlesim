@@ -69,7 +69,7 @@ def compute_distance_travelled(message_list):
             distance_list.append(
                 {
                     "timestamp": msg.timestamp,
-                    "cumulated_distance": 0
+                    "cumulative_distance": 0
                 })
         else:
             current_position = msg.message.x, msg.message.y
@@ -79,7 +79,7 @@ def compute_distance_travelled(message_list):
             distance_list.append(
                 {
                     "timestamp": msg.timestamp,
-                    "cumulated_distance": distance
+                    "cumulative_distance": distance
                 })
             prev_position = current_position
     return distance_list
@@ -192,9 +192,9 @@ distance_list = compute_distance_travelled(
     [match['groundtruth'] for match in matched_messages]
 )
 assert len(distance_list) == len(matched_messages)
-total_distance = distance_list[-1]['cumulated_distance']
+total_distance = distance_list[-1]['cumulative_distance']
 start_time = distance_list[0]['timestamp'].to_sec()
-cumulated_distance = [_['cumulated_distance'] for _ in distance_list]
+cumulative_distance = [_['cumulative_distance'] for _ in distance_list]
 horiz_errors_distance = [
     error_horiz(match['groundtruth'], match['estimated'])
     for match in matched_messages
@@ -206,14 +206,14 @@ yaw_errors_distance = [
 if not args["skip_figures"]:
     fig = px.scatter(
         x=[_['timestamp'].to_sec() - start_time for _ in distance_list],
-        y=cumulated_distance,
+        y=cumulative_distance,
         title=f"Distance travelled over time <br>Total distance = {total_distance:.1f} m",
         labels={'x': 'timestamp (s)', 'y': 'cummulated distance (m)'}
     )
     fig.write_html(args['out_folder'] + "/distance_travelled.html")
 
     fig = px.scatter(
-        x=cumulated_distance,
+        x=cumulative_distance,
         y=horiz_errors_distance,
         title=f"Horizontal error over distance travelled <br>Final error = {horiz_errors_distance[-1]:.2f} m",
         labels={'x': 'distance travelled (m)', 'y': 'error (m)'}
@@ -221,7 +221,7 @@ if not args["skip_figures"]:
     fig.write_html(args['out_folder'] + "/error_horiz_distance.html")
 
     fig = px.scatter(
-        x=cumulated_distance,
+        x=cumulative_distance,
         y=yaw_errors_distance,
         title=f"Yaw orientation error over distance travelled <br>Final error = {yaw_errors_distance[-1]:.2f} deg",
         labels={'x': 'distance travelled (m)', 'y': 'error (degrees)'},
@@ -262,7 +262,7 @@ if not args["skip_figures"]:
 # export metrics as a .json
 if not args["skip_metrics"]:
     metrics = {
-        'cumulated_distance_final_m': cumulated_distance[-1],
+        'cumulative_distance_final_m': cumulative_distance[-1],
         'error_horizontal_final_m': horiz_errors_time[-1],
         'error_orientation_final_deg': yaw_errors_time[-1],
         'time_delta_max_ms': max_time_delta * 1000
