@@ -26,16 +26,16 @@ jobs:
         #     test/segment_length: 5  # for square trajectory
         #     test/odom_tuning_theta: 0.001   # demo: tune odometry algorithm
         #     test/odom_tuning_forward: 0.001  # demo: tune odometry algorithm
+        - name: turtle_quick
+          params:
+            test/start_pose: [[1, 1, 0]]
+            test/segment_length: 1
+            test/odom_tuning_theta: 0.01
+            test/odom_tuning_forward: 0.1
         # - name: turtle_repeat
         #   params:
         #     test/start_pose: [[1, 1, 0]]
         #     test/segment_length: [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5]
-        #     test/odom_tuning_theta: 0.01
-        #     test/odom_tuning_forward: 0.1
-        # - name: turtle_quick
-        #   params:
-        #     test/start_pose: [[1, 1, 0]]
-        #     test/segment_length: 1
         #     test/odom_tuning_theta: 0.01
         #     test/odom_tuning_forward: 0.1
         # - name: turtle_fail
@@ -50,12 +50,12 @@ jobs:
         #     test/segment_length: [7, 2]
         #     test/odom_tuning_theta: 0.01
         #     test/odom_tuning_forward: 0.1
-        - name: turtle_gridsearch_odom
-          params:
-            test/start_pose: [[1, 1, 0]]
-            test/segment_length: 5
-            test/odom_tuning_theta: [0.005, 0.01, 0.025, 0.05, 0.075, 0.1, 0.25, 0.5]
-            test/odom_tuning_forward: [0.025, 0.05, 0.075, 0.1, 0.25, 0.5]
+        # - name: turtle_gridsearch_odom
+        #   params:
+        #     test/start_pose: [[1, 1, 0]]
+        #     test/segment_length: 5
+        #     test/odom_tuning_theta: [0.005, 0.01, 0.025, 0.05, 0.075, 0.1, 0.25, 0.5]
+        #     test/odom_tuning_forward: [0.025, 0.05, 0.075, 0.1, 0.25, 0.5]
   dummy_other:
       type: test
       runtime:

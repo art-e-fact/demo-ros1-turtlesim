@@ -19,6 +19,7 @@ class TestTurtle(unittest.TestCase):
     def setUp(self):
         ## Arange
         rospy.init_node("testurtle", anonymous=True)
+        rospy.loginfo('TestTurtle setUp() start')
         # setup the turtlesim simulator
         rospy.wait_for_service(f"/{NAME}/teleport_absolute")
         rospy.wait_for_service(f"/{NAME}/set_pen")
@@ -42,11 +43,12 @@ class TestTurtle(unittest.TestCase):
         self.srv_clear()
         # prepare trajectory commands for the test
         self.turtle_trajectory = TurtleTrajectory(NAME, self.start_pose)
-        rospy.loginfo("setting up turtle trajectory")
         # init odometry to match the pose of the test setup
         rospy.wait_for_service(f"/{NAME}/odom_reset")
         self.srv_reset_odom = rospy.ServiceProxy(f"/{NAME}/odom_reset", EmptySrv)
         self.srv_reset_odom()
+        rospy.loginfo('TestTurtle setUp() complete')
+
 
     def test_turtle(self):
         ## Act
@@ -66,7 +68,7 @@ class TestTurtle(unittest.TestCase):
             timeout=None
         )
         distance_to_start = np.sqrt((final_pose.x - self.start_pose['x'])**2 + (final_pose.y - self.start_pose['y'])**2)
-        rospy.loginfo(f"distance to start: {distance_to_start}")
+        rospy.loginfo(f"distance to start: {distance_to_start:.2g} m")
         # check if the turtle moved (= is not at exactly the starting position)
         self.assertNotEqual(
             distance_to_start,
