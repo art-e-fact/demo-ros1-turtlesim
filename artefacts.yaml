@@ -45,6 +45,19 @@ jobs:
         #     test/odom_tuning_theta: [0.005, 0.01, 0.025, 0.05, 0.075, 0.1, 0.25, 0.5]
         #     test/odom_tuning_forward: [0.025, 0.05, 0.075, 0.1, 0.25, 0.5]
 
+  turtle_regression: # Overall job name
+    type: test
+    runtime:
+      simulator: turtlesim
+      framework: ros1:0
+    timeout: 5 # minutes
+    scenarios:
+      defaults: # Global to all scenarios, and overriden in specific scenarios.
+        ros_testpackage: turtle_simple
+        ros_testfile: turtle_simple.launch
+      settings:
+        - name: simple_regression_test
+
   dummy_other:
       type: test
       runtime:

@@ -1,0 +1,37 @@
+<!-- user provided launch test file.
+must define the user's own tech stach + test cases
+this file will the be included in a top-level rostest.launch file, with additional resources provided
+e.g. simulator / rosbag recorder / param server (based on user specificed artefact.yaml)
+-->
+
+<launch>
+
+  <!-- launch simulator environment -->
+  <!-- turtlesim is provided by artefact ros1 runner, based on artefact.yaml -->
+
+  <!-- launch user nodes -->
+  <!-- tech stack under test -->
+
+
+  <!--===========
+  TEST SPECIFIC
+  =============-->
+
+  <!-- launch data recorder -->
+  <!-- rosbag record now provided by the artefact ros1 runner, based on artefact.yaml-->
+
+  <!-- launch user test metrics -->
+  <!-- node(s) that calculate (and publish) test metrics -->
+
+  <!-- launch user tests -->
+  <!-- main responsibiities: setUp(), assert at end of test and teardDown() -->
+  <test
+    test-name="turtle"
+    pkg="turtle_simple"
+    type="TestTurtleSimple.py"
+    time-limit="20"
+/>
+
+  <!-- (optional) launch visualizations -->
+  <!--  rviz / plotjuggler / foxglove if live monitoring of test is wanted -->
+</launch>
