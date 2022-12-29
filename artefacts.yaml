@@ -1,6 +1,10 @@
 version: 0.1.0
 
 project: demo-ros1-turtlesim
+on:
+  push:
+    jobs:
+      - turtle_regression
 jobs:
   basic_turtle: # Overall job name
     type: test
@@ -10,7 +14,7 @@ jobs:
       pre_launch: echo hello  # command to be executed before launching the test. use it to perform any setup before simulator launch
     timeout: 5 # minutes
     scenarios:
-      defaults: # Global to all scenarios, and overriden in specific scenarios.
+      defaults: # Global to all scenarios, and overridden in specific scenarios.
         output_dirs: [/tmp/outputs/]
         subscriptions:
           pose: turtle1/pose
@@ -42,21 +46,48 @@ jobs:
         #     test/segment_length: [7, 2]
         # - name: turtle_gridsearch_odom
         #   params:
-        #     test/odom_tuning_theta: [0.005, 0.01, 0.025, 0.05, 0.075, 0.1, 0.25, 0.5]
-        #     test/odom_tuning_forward: [0.025, 0.05, 0.075, 0.1, 0.25, 0.5]
+        #     test/odom_tuning_theta: [0.001, 0.0025, 0.005, 0.01, 0.025, 0.05, 0.075, 0.1, 0.25, 0.5]
+        #     test/odom_tuning_forward: [0.001, 0.0025, 0.005, 0.01, 0.025, 0.05, 0.075, 0.1, 0.25, 0.5]
 
   turtle_regression: # Overall job name
     type: test
     runtime:
       simulator: turtlesim
       framework: ros1:0
-    timeout: 5 # minutes
     scenarios:
-      defaults: # Global to all scenarios, and overriden in specific scenarios.
-        ros_testpackage: turtle_simple
-        ros_testfile: turtle_simple.launch
       settings:
         - name: simple_regression_test
+          ros_testpackage: turtle_simple
+          ros_testfile: turtle_simple.launch
+
+  turtle_repeatability:
+    type: test
+    runtime:
+      simulator: turtlesim
+      framework: ros1:0
+    scenarios:
+      defaults:
+        params:
+          test/start_pose: [[1, 1, 0]]  # [x, y, theta]
+          test/segment_length: 5  # for square trajectory
+          test/odom_tuning_theta: 0.001   # demo: tune odometry algorithm
+          test/odom_tuning_forward: 0.01  # demo: tune odometry algorithm
+      settings:
+        - name: turtle_repeat
+          ros_testpackage: turtle_odometry
+          ros_testfile: turtle_odometry.launch
+          rosbag_record: all
+          rosbag_postprocess: turtle_post_process.py
+          params:
+            dummy: [0, 0, 0]  # Artefacts will run 10 scenarios, each with the value from this parameter list
+
+
+
+        # - name: turtle_gridsearch_odom
+        #   params:
+        #     test/odom_tuning_theta: [0.001, 0.0025, 0.005, 0.01, 0.025, 0.05, 0.075, 0.1, 0.25, 0.5]
+        #     test/odom_tuning_forward: [0.001, 0.0025, 0.005, 0.01, 0.025, 0.05, 0.075, 0.1, 0.25, 0.5]
+
 
   dummy_other:
       type: test
@@ -65,7 +96,7 @@ jobs:
         framework: other
       timeout: 5 # minutes
       scenarios:
-        defaults: # Global to all scenarios, and overriden in specific scenarios.
+        defaults: # Global to all scenarios, and overridden in specific scenarios.
           run: "echo 'hello'"
         settings:
           - name: dummy
