@@ -26,10 +26,10 @@ services:
       - ./ros_workspace/src:/home/turtle/ros_workspace/src
       # Also mount the rosbag folder for convenient data logging input/output
       - ./rosbags:/rosbags:rw
-      # (optional) Mount the warp-client to automate testing
-      # use alias 'ww' to pip install -e warp-client
+      # (optional) Mount the artefacts-client to automate testing
+      # use alias 'ww' to pip install -e artefacts-client
       # (the api key and config are mounted from the host)
-      - ../warp-client:/warp-client
+      - ../artefacts-client:/artefacts-client
       - ~/.artefacts:/home/turtle/.artefacts
       - $PWD/artefacts.yaml:/home/turtle/artefacts.yaml
       # sync timezone with host and ensure X11 settings

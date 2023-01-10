@@ -40,7 +40,7 @@ echo "alias jj='jupyter notebook'" >> ~/.bashrc
 echo "alias tt='tmux new'" >> ~/.bashrc
 echo "alias rc='roscore &'" >> ~/.bashrc
 echo "alias ts='rosrun turtlesim turtlesim_node'" >> ~/.bashrc
-echo "alias ww='cd /warp-client && pip install -e . && cd'" >> ~/.bashrc
+echo "alias ww='cd /artefacts-client && pip install -e . && cd'" >> ~/.bashrc
 echo "alias cdw='cd ~/ros_workspace/src/turtle_odometry/test'" >> ~/.bashrc
 
 # Setup rqt and plotjuggler for high DPI screens
